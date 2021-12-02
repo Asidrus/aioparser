@@ -4,6 +4,7 @@ import pathlib
 sys.path.insert(-1, str(pathlib.Path(__file__).parent.resolve()))
 from aioparser import aioparser
 from network import Protocol, Server
+from config import aioparser_IP, aioparser_PORT
 
 
 def genStr(language='en', register=True, numbers=True, length=20):
@@ -52,7 +53,7 @@ async def handler2(**kwargs):
 def main2():
     from network import Client
     data = {'site': 'https://pentaschool.ru', 'patterns': ["витковский"], 'adaptive': 'False'}
-    client = Client('localhost', 9087, handler=handler2)
+    client = Client(aioparser_IP, aioparser_PORT, handler=handler2)
     asyncio.run(client.send(content=data))
 
 

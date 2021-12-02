@@ -8,7 +8,8 @@ run:
 		--rm \
 		--net=host \
 		--name='aioparser' \
-		telegrambot \
+		-v ~/aioparser-results/:/aioparser-results/ \
+		aioparser \
 		bash -c \
 		"python main.py"
 stop:
