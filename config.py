@@ -1,0 +1,1 @@
+aioparser_results = '/home/kali/aioparser-results/'
