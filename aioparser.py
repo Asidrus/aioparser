@@ -80,12 +80,12 @@ class aioparser:
         start = [ind for ind in find_all(self.site, '/')][1] + 1
         end = [ind for ind in find_all(self.site, '.')][-1]
         domain = self.site[start:end] + "_adaptive" if self.adaptive == True else self.site[start:end]
-        self.fnameLinks = aioparser_results + domain + "_links.json"
+        self.fnameLinks = STORAGE_PATH + domain + "_links.json"
 
         if (type(self.autosave) == bool) and (self.autosave == True):
-            self.fnameResults = aioparser_results + domain + "_result.json"
+            self.fnameResults = STORAGE_PATH + domain + "_result.json"
         else:
-            self.fnameResults = aioparser_results + self.autosave + '.json'
+            self.fnameResults = STORAGE_PATH + self.autosave + '.json'
 
     def readfile(self, fname, data):
         with open(fname, "r") as read_file:

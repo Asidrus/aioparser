@@ -35,6 +35,7 @@ dependencies:
     - idna==3.3
     - lxml==4.6.4
     - multidict==5.2.0
+    - python-dotenv==0.19.2
     - typing-extensions==4.0.1
     - yarl==1.7.2
 prefix: /home/kali/anaconda3/envs/aioparser
