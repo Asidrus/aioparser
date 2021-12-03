@@ -11,7 +11,7 @@ run:
 		-d \
 		--rm \
 		--net=host \
-		--name=$PROJECT \
+		--name=${PROJECT} \
 		-v ${STORAGE}${PROJECT}:${STORAGE} \
 		${PROJECT} \
 		bash -c \

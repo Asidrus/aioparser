@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PROJECT_NAME = os.getenv('PROJECT')
-STORAGE_PATH = os.getenv('PROJECT') + PROJECT_NAME
+STORAGE_PATH = os.getenv('STORAGE')
 IP = os.getenv('IP')
 PORT = os.getenv('PORT')
 

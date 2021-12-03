@@ -94,6 +94,7 @@ class aioparser:
     def writefile(self, fname, data):
         with open(fname, "w", encoding='utf-8') as write_file:
             json.dump(data, write_file, indent=4, ensure_ascii=False)
+            print(f'сохранил файл в {fname}')
 
     def takeLink(self):
         yield from self.links['internal']
