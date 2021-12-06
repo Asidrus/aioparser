@@ -7,6 +7,6 @@ RUN mkdir -m 777 $STORAGE
 COPY req.yml ./
 RUN conda env create -f req.yml
 RUN echo "source activate $PROJECT" > ~/.bashrc
-ENV PATH /opt/conda/envs/aioparser/bin:$PATH
+ENV PATH /opt/conda/envs/$PROJECT/bin:$PATH
 COPY . .
 
