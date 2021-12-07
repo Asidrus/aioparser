@@ -33,6 +33,7 @@ async def handler(**kwargs):
     if kwargs['contentType'] == 'json':
         content = kwargs['content']
         parser = aioparser(content['site'], content['patterns'], content['adaptive'].lower() == 'true', parse=True, autosave=genStr())
+        print(str(parser))
         loop = asyncio.get_event_loop()
         loop.create_task(parser.run())
         asyncio.set_event_loop(loop)

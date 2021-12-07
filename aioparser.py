@@ -58,6 +58,9 @@ class aioparser:
         self.parser = etree.HTMLParser()
         self.getFileName()
 
+    def __str__(self):
+        return f"site='{self.site}', pattern='{self.pattern}'"
+
     async def run(self):
         if (not self.pattern) and (not self.pattern) and os.path.exists(self.fnameLinks) and (
                 (datetime.now() - datetime.fromtimestamp(os.path.getmtime(self.fnameLinks))) < timedelta(hours=23)):
@@ -65,7 +68,7 @@ class aioparser:
         else:
             print(
                 f"Файл {self.fnameLinks} не найден или страрый, начинаем парсинг ссылок, наливайте кофе... это надолго")
-            self.links['internal'].append({"url": self.site, "from": []})
+            self.links['internal'] = [{"url": self.site, "from": []}]
             for p in self.pattern:
                 self.result[p] = []
             await self.parsing()
@@ -102,7 +105,7 @@ class aioparser:
     async def parsing(self):
         async with aiohttp.ClientSession() as session:
             for link in self.takeLink():
-                # print(link["url"])
+                print(link["url"])
                 try:
                     async with session.get(link["url"], headers=headers) as response:
                         header = response.headers["Content-Type"]
