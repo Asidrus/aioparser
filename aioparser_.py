@@ -104,7 +104,6 @@ class aioparser:
                 self.forceParsing = True
 
         if self.forceParsing:
-            print()
             self.refresh()
         await self.parsing()
         self.writeResults()
@@ -202,29 +201,68 @@ class aioparser:
 async def searcher_example(html, link):
     if "/seminar" in link["url"]:
         soup = BeautifulSoup(html, "lxml")
-        content_old = soup.find('div', attrs={"id": "block_content"})
-        content_new = soup.find('div', attrs={"id": "crsTab_1"}) # urgaps
-        excellence = soup.find('div', attrs={"class": "crs-features-box"})
+        blocks = [
+            # niidpo 0-4
+            {'name': 'div', "attrs": {"class": "course-objective-inf"}},
+            {'name': 'div', "attrs": {"class": "wher-work-unit bg-unit"}},
+            {'name': 'div', "attrs": {"class": "excellence-list"}},
+            {'name': 'div', "attrs": {"id": "block_content"}},
+            # urgaps 4-12
+            {'name': 'div', "attrs": {"class": "crs-features-box"}},
+            {'name': 'div', "attrs": {"id": "crs-task-row"}},
+            {'name': 'div', "attrs": {"id": "crs-get-consult-row"}},
+            {'name': 'div', "attrs": {"id": "crs-vacancies-box"}},
+            {'name': 'div', "attrs": {"id": "crs-whom-section"}},
+            {'name': 'div', "attrs": {"id": "crs-learn-section"}},
+            {'name': 'div', "attrs": {"id": "crs-work-section"}},
+            {'name': 'div', "attrs": {"id": "block_content"}},
+            # vgaps 12-13
+            {'name': 'div', "attrs": {"id": "block_content_new"}},
+            # adpo 13-14
+            {'name': 'div', "attrs": {"id": "tab1"}},
+            # dpomipk 14-15
+            {'name': 'div', "attrs": {"id": "block_content"}},
+            # edu.bakalavr-magistr 15-16
+            {'name': 'div', "attrs": {"id": "block_content"}},
+        ]
+        pattern = ['бессрочн', 'библиоклуб', 'biblioclub', 'месяц']
+
+        text = ''
+        for block in blocks[4:12]:
+            text_block = soup.find(**block)
+            if text_block is not None:
+                text = text + str(text_block).lower()
+            else:
+                print(f"{block} is not found")
+
         res = {}
-        pattern = ['3 мес', '4000']
-        for p in pattern:
-            if p.lower() in (str(content_old)+str(content_new)+str(excellence)):
-                # print({p: link["url"]})
+
+        for p in pattern[:]:
+            if p.lower() in text:
+                print({p: link["url"]})
                 res[p] = link["url"]
+        return res
+
+        # content_old = soup.find('div', attrs={"class": "course-objective-inf"})
+        # block = soup.find('div', attrs={'class': 'wher-work-unit bg-unit'})
+        # slick = soup.find('div', attrs={'class': 'crs-features-box'})
+        # content_new = soup.find('div', attrs={'id': 'crsTab_1'})
+        #
+        # res = {}
+        #
+        # for p in pattern:
+        #     if p.lower() in (str(content_old)+str(block)+str(slick)+str(content_new)).lower():
+        #         print({p: link["url"]})
+        #         res[p] = link["url"]
         return res
     else:
         return {}
 
 
 if __name__ == '__main__':
-    pattern = ['3 мес', '4000']
-    # parser = aioparser('https://niidpo.ru',
-    #                    storagePath='/home/kali/autotest-results/',
-    #                    pattern=pattern,
-    #                    fileNameResults='res_1')
-    parser = aioparser('https://urgaps.ru',
+    parser = aioparser('https://urgaps.ru/',
                        storagePath='/home/kali/autotest-results/',
                        forceParsing=True,
-                       fileNameResults='res_3',
+                       fileNameResults='urgaps',
                        searcher=searcher_example)
     asyncio.run(parser.run())
