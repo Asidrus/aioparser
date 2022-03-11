@@ -111,7 +111,6 @@ class aioparser:
     def writeResults(self):
         self.writefile(self.fileNameLinks, self.links)
         if self.pattern or self.searcher:
-            self.saveAsHtml(self.fileNameResults, self.result)
             self.writefile(self.fileNameResults, self.result)
 
     def readfile(self, fname):
@@ -123,27 +122,13 @@ class aioparser:
             json.dump(data, write_file, indent=4, ensure_ascii=False)
             print(f'сохранил файл в {fname}')
 
-    def saveAsHtml(self, fname, data):
-        html = """<html lang="ru">
-                    <header>
-                        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-                    </header>
-                    <body>\n"""
-        for key in data.keys():
-            html = html + '<p>' + key + "</p><br>\n"
-            for url in data[key]:
-                html = html + f'<a href="{url}" target="_blank">{url}</a><br>\n'
-        html = html + """</body>
-                        </html>"""
-        with open(fname.replace(".json", "")+".html", 'w', encoding='utf-8') as file:
-            file.write(html)
-
     def takeLink(self):
         yield from self.links['internal']
 
     async def parsing(self):
         async with aiohttp.ClientSession() as session:
             for link in self.takeLink():
+            # for link in [{"url": "https://niidpo.ru/seminar/9584"}]:
                 print(link["url"])
                 try:
                     async with session.get(link["url"], headers=self.headers) as response:
@@ -156,7 +141,7 @@ class aioparser:
                         except Exception as e:
                             html = await response.text('windows-1251', errors="ignore")
                             print(f"Ошибка в кодировке {e} {link['url']} {response.headers['Content-Type']}")
-                        # html = html.lower()
+                        html = html.lower()
 
                         if self.forceParsing:
                             # Собираем ссылки ссылки
@@ -243,72 +228,57 @@ async def searcher_example(html, link):
         pattern = ['бессрочн', 'библиоклуб', 'biblioclub', 'месяц']
 
         text = ''
-        for block in blocks[15:16]:
+        for block in blocks[4:12]:
             text_block = soup.find(**block)
             if text_block is not None:
-                text_block = str(text_block).replace(str(soup.find(name="noindex")), '')
                 text = text + str(text_block).lower()
             else:
                 print(f"{block} is not found")
 
         res = {}
 
-        for p in pattern[0:3]:
+        for p in pattern[:]:
             if p.lower() in text:
                 print({p: link["url"]})
                 res[p] = link["url"]
+        return res
+
+        # content_old = soup.find('div', attrs={"class": "course-objective-inf"})
+        # block = soup.find('div', attrs={'class': 'wher-work-unit bg-unit'})
+        # slick = soup.find('div', attrs={'class': 'crs-features-box'})
+        # content_new = soup.find('div', attrs={'id': 'crsTab_1'})
+        #
+        # res = {}
+        #
+        # for p in pattern:
+        #     if p.lower() in (str(content_old)+str(block)+str(slick)+str(content_new)).lower():
+        #         print({p: link["url"]})
+        #         res[p] = link["url"]
         return res
     else:
         return {}
 
 
-async def bitrix(html: str, link: dict):
-    if 'seminar' in link["url"]:
-        soup = BeautifulSoup(html, 'lxml')
-        h2 = soup.find_all('h2')
-        next = ''
-        for i in range(len(h2)):
-            if 'методы обучения' in str(h2[i]).lower():
-                next = h2[i+1].text.lower()
-
-        ind1 = html.lower().find('<h2>методы обучения</h2>')
-        ind2 = html.lower().find(f"<h2>{next}</h2>")
-
-        text = html[ind1:ind2]
-        res = {}
-        for p in ['skype', 'тьютор']:
-            if p.lower() in text:
-                print({p: link["url"]})
-                res[p] = link["url"]
-        return res
-    else:
-        return {}
-
-
-async def task1056723(html: str, link: dict):
-    if 'news' not in link["url"]:
-        res = {}
-        text = html.lower()
-        count1 = len([ind for ind in find_all(text, "пожарн")])
-        count2 = len([ind for ind in find_all(text, "пожарно-техническому")])
-        if count1 > count2:
-            p = "пожарн"
-            print({p: link["url"]})
-            res[p] = link["url"]
-        for p in ['птм']:
-            if p.lower() in text:
-                print({p: link["url"]})
-                res[p] = link["url"]
-        return res
-    else:
-        return {}
+def googleSheets():
+    from oauth2client.service_account import ServiceAccountCredentials
+    import httplib2
+    import apiclient.discovery
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("stable-ring-316114-8acf36454762.json",
+                                                                   ['https://www.googleapis.com/auth/spreadsheets',
+                                                                    'https://www.googleapis.com/auth/drive'])
+    httpAuth = credentials.authorize(httplib2.Http())
+    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
+    raw = service.spreadsheets().values().get(spreadsheetId="1bOhYaJTpVMgu1U6B2TJ8jCU6xe2-9X9N/",
+                                              range=f"Продажи!A1:А564",
+                                              majorDimension='ROWS').execute()["values"]
+    print(raw)
 
 
 if __name__ == '__main__':
-    parser = aioparser('https://vgaps.ru/',
-                       storagePath='/home/kali/autotest-results/',
-                       forceParsing=True,
-                       fileNameResults='vgaps',
-                       adaptive=False,
-                       searcher=task1056723)
-    asyncio.run(parser.run())
+    # parser = aioparser('https://urgaps.ru/',
+    #                    storagePath='/home/kali/autotest-results/',
+    #                    forceParsing=True,
+    #                    fileNameResults='urgaps',
+    #                    searcher=searcher_example)
+    # asyncio.run(parser.run())
+    googleSheets()
